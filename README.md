@@ -1,48 +1,87 @@
-# Гайд по перепрошивке RAID контроллера Dell PERC H310 в HBA режим (он же IT Mode)
+# A guide to flashing the Dell PERC H310 RAID controller to HBA mode (aka IT Mode)
 
-![Фотка H310](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/h310.jpg?raw=true)
-*Данный гайд является переводом другого гайда [оригинальный гайд](https://tylermade.net/2017/06/27/how-to-crossflash-perc-h310-to-it-mode-lsi-9211-8i-firmware-hba-for-freenas-unraid/)*
+![H310 photo](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/h310.jpg?raw=true)  
+*This guide is a translation of another guide, [original guide](https://tylermade.net/2017/06/27/how-to-crossflash-perc-h310-to-it-mode-lsi-9211-8i-firmware-hba-for-freenas-unraid/)*
 
-*__При копировании информации обязательно указывайте оригинальный источник.__* 
+*__When copying this information, always cite the original source.__*  
 
-# Для чего это нужно?
+---
 
-Например у вас есть ненужный контроллер и вы хотите его использовать для простого подключения дисков или для Soft RAID (ZFS, LVM, Storage Spaces и т.п.) или просто для подключения SAS/SATA дисков.
+## Why would you need this?
 
-## Что для этого нужно?
-* SAS контроллер
-* USB флешка, подойдёт любая, например на 1 гб.
+For example, if you have an unused controller and want to use it for simple disk connections or for software RAID (ZFS, LVM, Storage Spaces, etc.) or just for connecting SAS/SATA drives.  
 
-**ВНИМАНИЕ, ЧТО ВЫ ДЕЛАЕТЕ СО СВОИМ КОНТРОЛЛЕРОМ, ВЫ ДЕЛАЕТЕ НА СВОЙ СТРАХ И РИСК!!**
+---
 
-# Подготовка и прошивка:
-**Внимание, если у вас материнка с UEFI то данный гайд может не сработать! В качестве альтернативы используйте этот гайд:** [techmattr.wordpress.com](https://techmattr.wordpress.com/2016/04/11/updated-sas-hba-crossflashing-or-flashing-to-it-mode-dell-perc-h200-and-h310/) 
-1) Скачиваете [Rufus](https://rufus.ie), [FreeDOS Boot Floppy](http://www.freedos.org/download/download/FD12FLOPPY.zip) и архив [LSI9211-8i](https://www.mediafire.com/file/6mtie10d9ud6675/LSI-9211-8i.zip/file);
-2) Форматируете через Rufus флешку в FreeDOS как на фото ниже;
-![Фотка руфус](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/rufus.jpg?raw=true)
-3) Распаковываете архив с FreeDOS Boot Floppy на флешку с заменой, удаляете файл SETUP.BAT;
-4) Распаковываете архив с LSI9211-8i на флешку с заменой;
-5) Выключаете пк, устанавливаете контроллер и запускаете пк с загрузкой в FreeDOS;
-6) Вводите комманду **megacli.exe -AdpAllInfo -aAll -page 20** через клавишу *Enter* прокручиваете до раздела  *HW Configuration* и запоминаете/фотографируете/записываете *SAS Address* как на фото, **в ином случае при дальнейших действиях вы получите кирпич заместо контроллера**;
-![Фотка SAS Address](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/SAS%20Address.jpg?raw=true)
-7) Вводите **megarec.exe -writesbr 0 sbrempty.bin** перед перепрошивкой;
-![Фотка empty](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/empty.jpg?raw=true)
-8) Вводите **megarec.exe -cleanflash 0** для зачистки прошивки и перезагрузите пк с последующей загрузкой в FreeDOS, для перезагрузки используйте комманду reboot
-9) После перезагрузки вводите **sas2flsh.exe -o -f 6GBPSAS.fw**;
-10) Вводите **s2fp19.exe -o -sasadd %ВАШ SAS Address%** %ВАШ SAS Address% - то что вы записали в 6 пункте, у меня же это **s2fp19.exe -o -sasadd 5с81f660dbbb1a00**;
-![Фотка SAS Address](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/sasadd.jpg?raw=true)
-11) Перезагрузите пк с последующей загрузкой в FreeDOS, для перезагрузки используйте комманду reboot;
-12) После перезагрузки вводите **sas2flsh.exe -o -f 2118it.bin**, при прошивке вам будет задан вопрос: *Would you like to flash anyways? *, вводите y и нажмите *Enter*;
-![Фотка SAS Address](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/2118it.jpg?raw=true)
-![Фотка SAS Address](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/yes.jpg?raw=true)
-13) Всё! перезагружайтесь в Windows/Linux и у вас он будет отображаться как надо в Windows: Dell HBA 6 Gbit/s, в Linux как-то так же. 
+## What do you need?
 
+* A SAS controller  
+* A USB flash drive, any size will work, e.g., 1 GB  
 
-**PS** Данный гайд в теории так же подходит для контроллера IBM M1015 и оригинального LSI MegaRAID 9240.
-![M1015](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/ibm%20m1015.jpg?raw=true)
-![9240](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/9240.jpg?raw=true)
+**WARNING: WHAT YOU DO TO YOUR CONTROLLER IS AT YOUR OWN RISK!!**  
 
+---
 
-# Ссылки:
-* [Оригинальный гайд](https://tylermade.net/2017/06/27/how-to-crossflash-perc-h310-to-it-mode-lsi-9211-8i-firmware-hba-for-freenas-unraid/);
-* [Альтернативный вариант прошивки на материнках с UEFI](https://techmattr.wordpress.com/2016/04/11/updated-sas-hba-crossflashing-or-flashing-to-it-mode-dell-perc-h200-and-h310/).
+# Preparation and flashing
+
+**Note:** If your motherboard uses UEFI, this guide may not work! As an alternative, use this guide: [techmattr.wordpress.com](https://techmattr.wordpress.com/2016/04/11/updated-sas-hba-crossflashing-or-flashing-to-it-mode-dell-perc-h200-and-h310/)  
+
+1. Download [Rufus](https://rufus.ie), [FreeDOS Boot Floppy](http://www.freedos.org/download/download/FD12FLOPPY.zip), and the [LSI9211-8i archive](https://www.mediafire.com/file/6mtie10d9ud6675/LSI-9211-8i.zip/file);  
+2. Format your USB stick using Rufus to FreeDOS as shown below;  
+![Rufus photo](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/rufus.jpg?raw=true)  
+3. Extract the FreeDOS Boot Floppy archive to the USB drive and overwrite existing files, then delete `SETUP.BAT`;  
+4. Extract the LSI9211-8i archive to the USB drive and overwrite existing files;  
+5. Shut down your PC, install the controller, and boot into FreeDOS;  
+6. Enter the command:  
+```
+megacli.exe -AdpAllInfo -aAll -page 20
+```  
+Press *Enter* and scroll to the *HW Configuration* section. Write down or photograph the *SAS Address* as shown below. **If you skip this, your controller may become bricked in the next steps**;  
+![SAS Address photo](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/SAS%20Address.jpg?raw=true)  
+7. Enter:  
+```
+megarec.exe -writesbr 0 sbrempty.bin
+```  
+before flashing;  
+![Empty photo](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/empty.jpg?raw=true)  
+8. Enter:  
+```
+megarec.exe -cleanflash 0
+```  
+to clear the firmware, then reboot into FreeDOS using the `reboot` command;  
+9. After reboot, enter:  
+```
+sas2flsh.exe -o -f 6GBPSAS.fw
+```  
+10. Enter:  
+```
+s2fp19.exe -o -sasadd %YOUR SAS Address%
+```  
+Replace `%YOUR SAS Address%` with the SAS address you saved in step 6. For example:  
+```
+s2fp19.exe -o -sasadd 5c81f660dbbb1a00
+```  
+![SAS Address photo](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/sasadd.jpg?raw=true)  
+11. Reboot into FreeDOS again using the `reboot` command;  
+12. After reboot, enter:  
+```
+sas2flsh.exe -o -f 2118it.bin
+```  
+When prompted with *Would you like to flash anyways?*, type `y` and press *Enter*;  
+![Flashing photo](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/2118it.jpg?raw=true)  
+![Confirm flash photo](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/yes.jpg?raw=true)  
+13. Done! Reboot into Windows/Linux. It should now appear as Dell HBA 6 Gbit/s in Windows and similarly in Linux.  
+
+---
+
+**PS:** This guide should theoretically also work for the IBM M1015 controller and the original LSI MegaRAID 9240.  
+
+![M1015](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/ibm%20m1015.jpg?raw=true)  
+![9240](https://github.com/ThinkPadThink/GuideFLASH-LSI/blob/master/9240.jpg?raw=true)  
+
+---
+
+## Links
+
+* [Original guide](https://tylermade.net/2017/06/27/how-to-crossflash-perc-h310-to-it-mode-lsi-9211-8i-firmware-hba-for-freenas-unraid/)  
+* [Alternative guide for UEFI motherboards](https://techmattr.wordpress.com/2016/04/11/updated-sas-hba-crossflashing-or-flashing-to-it-mode-dell-perc-h200-and-h310/)
