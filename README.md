@@ -49,7 +49,7 @@ before flashing;
 megarec.exe -cleanflash 0
 ```  
 to clear the firmware, then reboot into FreeDOS using the `reboot` command;  
-9. After reboot, enter:  
+9. After reboot, enter (ONLY FOR DELL H200) IF NOT H200 - Goto STEP 11 & 12 Then STEP 10:  
 ```
 sas2flsh.exe -o -f 6GBPSAS.fw
 ```  
